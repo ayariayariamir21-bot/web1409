@@ -1,32 +1,27 @@
-import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createApp } from "./app.js";
+import { loadServerConfig } from "./config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
-  const app = express();
-  const server = createServer(app);
+  // Fail-fast on invalid production configuration before binding the port.
+  const config = loadServerConfig();
 
   // Serve static files from dist/public in production
   const staticPath =
-    process.env.NODE_ENV === "production"
+    config.nodeEnv === "production"
       ? path.resolve(__dirname, "public")
       : path.resolve(__dirname, "..", "dist", "public");
 
-  app.use(express.static(staticPath));
+  const app = createApp(staticPath);
+  const server = createServer(app);
 
-  // Handle client-side routing - serve index.html for all routes
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
-
-  const port = process.env.PORT || 3000;
-
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  server.listen(config.port, () => {
+    console.log(`Server running on http://localhost:${config.port}/`);
   });
 }
 

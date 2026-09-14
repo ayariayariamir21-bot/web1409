@@ -16,6 +16,12 @@ npm run check
 npm run build
 ```
 
+## Configuration
+
+Copy `.env.example` to `.env` for local development. Server settings are
+typed in `server/config.ts` and fail fast in production when required
+variables are missing. Full reference: `docs/configuration.md`.
+
 ## Folder structure
 
 ```text
